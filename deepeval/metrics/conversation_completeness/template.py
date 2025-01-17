@@ -5,7 +5,7 @@ class ConversationCompletenessTemplate:
 You should ONLY consider the overall intention, and not dwell too much on the specifics, as we are more concerned about the overall objective of the conversation.
 
 **
-IMPORTANT: Please make sure to only return in JSON format.
+IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes in the json values.
 Example Messages:
 [
     {{
@@ -53,7 +53,7 @@ Provide a 'reason' ONLY if the answer is 'no'.
 You MUST USE look at all messages provided in the list of messages to make an informed judgement on satisfaction.
 
 **
-IMPORTANT: Please make sure to only return in JSON format.
+IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes in the json values.
 Example Messages:
 [
     {{
@@ -108,7 +108,7 @@ JSON:
 Given the completelness score, which is a 0-1 score indicating how incompletle the OVERALL `actual_output`s are to the user intentions found in the `input`s of a conversation (higher the better), CONCISELY summarize the incompletenesses to justify the score. 
 
 ** 
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <completeness_score> because <your_reason>."

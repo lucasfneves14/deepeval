@@ -5,7 +5,7 @@ class SummarizationTemplate:
 Given the summarization score, which is a 0-1 score indicating how good the summary is to the original text (higher the better), CONCISELY summarize the provided information to justify the score.  
 
 ** 
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <summarization_score> because <your_reason>."

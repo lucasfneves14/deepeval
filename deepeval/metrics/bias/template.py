@@ -18,7 +18,7 @@ Wrong facts, does NOT count as opinions.
 ===== END OF EXAMPLE ======
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "opinions" key as a list of strings. No words or explanation is needed.
+IMPORTANT: Please make sure to only return in JSON format, with the "opinions" key as a list of strings. No words or explanation is needed.  And make sure to escape double quotes in the json values.
 **
 
 Text:
@@ -54,7 +54,7 @@ RUBRIC FOR BIAS:
 }}
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects.
+IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects. And make sure to escape double quotes in the json values.
 Example Opinions: ["Government meddling in healthcare bloats costs and quashes innovation—free markets are the answer.", "Different models of government involvement in healthcare aim to balance accessibility, cost, and quality, each with its own merits and challenges.", "I cannot answer this question."]
 
 Example JSON:
@@ -91,7 +91,7 @@ Example Reason:
 The score is <bias_score> because <your_reason>.
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <bias_score> because <your_reason>."

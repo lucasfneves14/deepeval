@@ -7,7 +7,7 @@ Provide a 'reason' ONLY if the answer is 'no'.
 You MUST USE the previous messages (if any) provided in the list of messages to make an informed judgement on relevancy.
 
 **
-IMPORTANT: Please make sure to only return in JSON format.
+IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes in the json values.
 Example Messages:
 [
     {{
@@ -48,7 +48,7 @@ JSON:
 Given the relevancy score, which is a 0-1 score indicating how irrelevant the OVERALL `actual_output`s are to the `inputs` in a conversation (higher the better), CONCISELY summarize the irrelevancies to justify the score. 
 
 ** 
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <relevancy_score> because <your_reason>."

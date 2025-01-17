@@ -31,7 +31,7 @@ Provide a 'reason' ONLY if the answer is 'no'.
 The provided statements are statements made in the actual output.
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key mapping to a list of JSON objects.
+IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key mapping to a list of JSON objects. And make sure to escape double quotes in the json values.
 Example input: What should I do if there is an earthquake?
 Example statements: ["Shoes.", "Thanks for asking the question!", "Is there anything else I can help you with?", "Duck and hide"]
 Example JSON:
@@ -73,7 +73,7 @@ If there is nothing irrelevant, just say something positive with an upbeat encou
 
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <answer_relevancy_score> because <your_reason>."

@@ -15,7 +15,7 @@ Provide a 'reason' ONLY if the answer is 'no'.
 The provided prompt instructions are the instructions to be followed in the prompt, which you have no acccess to.
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key mapping to a list of JSON objects.
+IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key mapping to a list of JSON objects. And make sure to escape double quotes in the json values.
 Example input: What number is the stars of the sky?
 Example actual output: HEY THERE! I think what you meant is "What is the number of stars in the sky", but unforunately I don't know the answer to it.
 Example prompt instructions: ["Answer the input in a well-mannered fashion.", "Do not correct user of any grammatical errors.", "Respond in all upper case"]
