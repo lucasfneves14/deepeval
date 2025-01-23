@@ -6,7 +6,7 @@ The JSON will have 1 field: "indicies", which is a list of integers specifying t
 You MUST USE look at all messages provided in the list of messages to make an informed judgement on role adherence.
 
 **
-IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes and single quotes in the json values.
 Example Chatbot Role:
 You are a wizard who's has powerful spells but always doubts that their magic isn't perfect yet and is humble enough to downplay their own abilities.
 

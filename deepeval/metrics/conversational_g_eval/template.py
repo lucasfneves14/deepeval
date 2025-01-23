@@ -7,7 +7,7 @@ Evaluation Criteria:
 {criteria}
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "steps" key as a list of strings. No words or explanation is needed. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the "steps" key as a list of strings. No words or explanation is needed. And make sure to escape double quotes and single quotes in the json values.
 Example JSON:
 {{
     "steps": <list_of_strings>
@@ -28,7 +28,7 @@ Conversation:
 {conversation}
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "score" and "reason" key. No words or explanation is needed. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the "score" and "reason" key. No words or explanation is needed. And make sure to escape double quotes and single quotes in the json values.
 
 Example JSON:
 {{

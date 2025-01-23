@@ -20,7 +20,7 @@ Example JSON:
 ===== END OF EXAMPLE ======
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "claims" key as a list of strings. And make sure to escape double quotes inside strings. No words or explanation is needed. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the "claims" key as a list of strings. And make sure to escape double quotes inside strings. No words or explanation is needed. And make sure to escape double quotes and single quotes in the json values.
 Only include claims that are factual, and the claims you extract should include the full context it was presented in, NOT cherry picked facts.
 You should NOT include any prior knowledge, and take the text at face value when extracting claims.
 **
@@ -55,7 +55,7 @@ Example JSON:
 ===== END OF EXAMPLE ======
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "truths" key as a list of strings. And make sure to escape double quotes inside strings. No words or explanation is needed. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the "truths" key as a list of strings. And make sure to escape double quotes inside strings. No words or explanation is needed. And make sure to escape double quotes and single quotes in the json values.
 Only include truths that are factual.
 **
 
@@ -73,7 +73,7 @@ Provide a 'reason' ONLY if the answer is 'no'.
 The provided claim is drawn from the actual output. Try to provide a correction in the reason using the facts in the retrieval context.
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects. And make sure to escape double quotes and single quotes in the json values.
 Example retrieval contexts: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. Einstein won the Nobel Prize in 1968. Einstein is a German Scientist."
 Example claims: ["Barack Obama is a caucasian male.", "Zurich is a city in London", "Einstein won the Nobel Prize for the discovery of the photoelectric effect which may have contributed to his fame.", "Einstein won the Nobel Prize in 1969 for his discovery of the photoelectric effect.", "Einstein was a Germen chef."]
 
@@ -123,7 +123,7 @@ JSON:
 Given the faithfulness score, which is a 0-1 score indicating how faithful the `actual output` is to the retrieval context (higher the better), CONCISELY summarize the contradictions to justify the score. 
 
 ** 
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes and single quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <faithfulness_score> because <your_reason>."

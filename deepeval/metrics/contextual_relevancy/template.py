@@ -13,7 +13,7 @@ class ContextualRelevancyTemplate:
 In your reason, you should quote data provided in the reasons for irrelevancy and relevant statements to support your point.
 
 ** 
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes and single quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <contextual_relevancy_score> because <your_reason>."
@@ -46,7 +46,7 @@ The 'verdict' key should STRICTLY be either 'yes' or 'no', and states whether th
 Provide a 'reason' ONLY IF verdict is no. You MUST quote the irrelevant parts of the statement to back up your reason.
 
 **
-IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes and single quotes in the json values.
 Example Context: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. He won the Nobel Prize in 1968. There was a cat."
 Example Input: "What were some of Einstein's achievements?"
 

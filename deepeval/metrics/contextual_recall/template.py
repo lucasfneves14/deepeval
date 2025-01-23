@@ -10,7 +10,7 @@ An unsupportive reason is the reason why a certain sentence in the original expe
 In your reason, you should related supportive/unsupportive reasons to the sentence number in expected output, and info regarding the node number in retrieval context to support your final reason. The first mention of "node(s)" should specify "node(s) in retrieval context)".
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes and single quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <contextual_recall_score> because <your_reason>."
@@ -44,7 +44,7 @@ The `reason` key should provide a reason why to the verdict. In the reason, you 
 
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects, each with two keys: `verdict` and `reason`. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects, each with two keys: `verdict` and `reason`. And make sure to escape double quotes and single quotes in the json values.
 
 {{
     "verdicts": [

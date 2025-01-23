@@ -4,7 +4,7 @@ class KnowledgeRetentionTemplate:
         return f"""Given a list of attritions, which highlights forgetfulness in the LLM response and knowledge established previously in the conversation, use it to CONCISELY provide a reason for the knowledge retention score. Note that The knowledge retention score ranges from 0 - 1, and the higher the better.
 
 ** 
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes and single quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <knowledge_retention_score> because <your_reason>."
@@ -29,7 +29,7 @@ The 'verdict' key should STRICTLY be either 'yes' or 'no', and states whether th
 The 'reason' is the reason for the verdict. When the answer is 'yes', try to provide a correction in the reason. 
 
 **
-IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format. And make sure to escape double quotes and single quotes in the json values.
 Example LLM message: Since you've already been to London for holiday, why don't you visit Zurich instead? Zurich is known for it's beautiful sunflower meadows.
 Example Previous Knowledge:
 {{
@@ -106,7 +106,7 @@ JSON:
         return f"""Given the following LLM message, User message, and previous knowledge, extract factual information FOUND IN THE 'User message' as a JSON.
 
 **
-IMPORTANT: Please make sure to only return in JSON format. All keys are strings, and all values are either STRING or LIST OF STRINGS only. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format. All keys are strings, and all values are either STRING or LIST OF STRINGS only. And make sure to escape double quotes and single quotes in the json values.
 Example LLM message: "Who is the 39th President of the United States of America?"
 Example User message: "Jimmy Carter."
 Example previous knowledge:

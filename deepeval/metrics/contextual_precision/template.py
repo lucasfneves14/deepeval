@@ -8,7 +8,7 @@ class ContextualPrecisionTemplate:
         return f"""Given the input, expected output, and retrieval context, please generate a list of JSON objects to determine whether each node in the retrieval context was remotely useful in arriving at the expected output.
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON. These JSON only contain the `verdict` key that outputs only 'yes' or 'no', and a `reason` key to justify the verdict. In your reason, you should aim to quote parts of the context. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON. These JSON only contain the `verdict` key that outputs only 'yes' or 'no', and a `reason` key to justify the verdict. In your reason, you should aim to quote parts of the context. And make sure to escape double quotes and single quotes in the json values.
 Example Retrieval Context: ["Einstein won the Nobel Prize for his discovery of the photoelectric effect", "He won the Nobel Prize in 1968.", "There was a cat."]
 Example Input: "Who won the Nobel Prize in 1968 and for what?"
 Example Expected Output: "Einstein won the Nobel Prize in 1968 for his discovery of the photoelectric effect."
@@ -53,7 +53,7 @@ The retrieval contexts is a list of JSON with three keys: `verdict`, `reason` (r
 Contextual precision represents if the relevant nodes are ranked higher than irrelevant nodes. Also note that retrieval contexts is given IN THE ORDER OF THEIR RANKINGS.
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes in the json values.
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason. And make sure to escape double quotes and single quotes in the json values.
 Example JSON:
 {{
     "reason": "The score is <contextual_precision_score> because <your_reason>."
