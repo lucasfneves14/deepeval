@@ -8,6 +8,7 @@ import sentry_sdk
 from enum import Enum
 from typing import List, Dict
 import requests
+from deepeval.constants import LOGIN_PROMPT
 
 
 class Feature(Enum):
@@ -20,7 +21,6 @@ class Feature(Enum):
 
 
 TELEMETRY_DATA_FILE = ".deepeval_telemtry.txt"
-
 
 #########################################################
 ### Telemetry Config ####################################
@@ -105,6 +105,21 @@ if (
     sys.excepthook = handle_exception
 
 
+def is_running_in_jupyter_notebook():
+    try:
+        from IPython import get_ipython
+
+        if "IPKernelApp" in get_ipython().config:
+            return True
+    except Exception:
+        pass
+    return False
+
+
+IS_RUNNING_IN_JUPYTER = (
+    "jupyter" if is_running_in_jupyter_notebook() else "other"
+)
+
 #########################################################
 ### Context Managers ####################################
 #########################################################
@@ -114,8 +129,13 @@ if (
 def capture_evaluation_run(type: str):
     if not telemetry_opt_out():
         with tracer.start_as_current_span(f"Ran {type}") as span:
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
+            span.set_attribute(
+                "feature_status.evaluation",
+                get_feature_status(Feature.EVALUATION),
+            )
             if anonymous_public_ip:
                 span.set_attribute("user.public_ip", anonymous_public_ip)
             set_last_feature(Feature.EVALUATION)
@@ -128,6 +148,7 @@ def capture_evaluation_run(type: str):
 def capture_metric_type(metric_name: str, _track: bool = True):
     if not telemetry_opt_out() and _track:
         with tracer.start_as_current_span(metric_name) as span:
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
             if anonymous_public_ip:
@@ -145,8 +166,13 @@ def capture_synthesizer_run(
         with tracer.start_as_current_span(f"Invoked synthesizer") as span:
             if anonymous_public_ip:
                 span.set_attribute("user.public_ip", anonymous_public_ip)
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
+            span.set_attribute(
+                "feature_status.synthesizer",
+                get_feature_status(Feature.SYNTHESIZER),
+            )
             span.set_attribute("method", method)
             span.set_attribute("max_generations", max_generations)
             span.set_attribute("evolutions", num_evolutions)
@@ -168,8 +194,13 @@ def capture_red_teamer_run(
         with tracer.start_as_current_span(f"Invokved redteamer") as span:
             if anonymous_public_ip:
                 span.set_attribute("user.public_ip", anonymous_public_ip)
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
+            span.set_attribute(
+                "feature_status.redteaming",
+                get_feature_status(Feature.REDTEAMING),
+            )
             span.set_attribute(
                 "attacks_per_vulnerability", attacks_per_vulnerability_type
             )
@@ -192,8 +223,13 @@ def capture_guardrails(guards: List[str]):
         with tracer.start_as_current_span(f"Ran guardrails") as span:
             if anonymous_public_ip:
                 span.set_attribute("user.public_ip", anonymous_public_ip)
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
+            span.set_attribute(
+                "feature_status.guardrail",
+                get_feature_status(Feature.GUARDRAIL),
+            )
             for guard in guards:
                 span.set_attribute(f"vulnerability.{guard}", 1)
             set_last_feature(Feature.GUARDRAIL)
@@ -208,8 +244,13 @@ def capture_benchmark_run(benchmark: str, num_tasks: int):
         with tracer.start_as_current_span(f"Ran benchmark") as span:
             if anonymous_public_ip:
                 span.set_attribute("user.public_ip", anonymous_public_ip)
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
+            span.set_attribute(
+                "feature_status.benchmark",
+                get_feature_status(Feature.BENCHMARK),
+            )
             span.set_attribute("benchmark", benchmark)
             span.set_attribute("num_tasks", num_tasks)
             set_last_feature(Feature.BENCHMARK)
@@ -225,10 +266,12 @@ def capture_login_event():
             last_feature = get_last_feature()
             if anonymous_public_ip:
                 span.set_attribute("user.public_ip", anonymous_public_ip)
+            span.set_attribute("environment", IS_RUNNING_IN_JUPYTER)
             span.set_attribute("user.status", get_status())
             span.set_attribute("user.unique_id", get_unique_id())
             span.set_attribute("last_feature", last_feature.value)
             span.set_attribute("completed", True)
+            span.set_attribute("login_prompt", LOGIN_PROMPT)
             yield span
     else:
         yield
@@ -294,4 +337,13 @@ def set_last_feature(feature: Feature):
         raise ValueError(f"Invalid feature: {feature}")
     data = read_telemetry_file()
     data["DEEPEVAL_LAST_FEATURE"] = feature.value
+    feature_status_key = f"DEEPEVAL_{feature.value.upper()}_STATUS"
+    data[feature_status_key] = "old"
     write_telemetry_file(data)
+
+
+def get_feature_status(feature: Feature) -> str:
+    """Gets the status of a feature ('new' or 'old') from the telemetry file."""
+    data = read_telemetry_file()
+    feature_status_key = f"DEEPEVAL_{feature.value.upper()}_STATUS"
+    return data.get(feature_status_key, "new")
