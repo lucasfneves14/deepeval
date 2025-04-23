@@ -4,7 +4,14 @@ title: HumanEval
 sidebar_label: HumanEval
 ---
 
-import Equation from "@site/src/components/equation";
+<head>
+  <link
+    rel="canonical"
+    href="https://deepeval.com/docs/benchmarks-human-eval"
+  />
+</head>
+
+import Equation from "@site/src/components/Equation";
 
 The **HumanEval** benchmark is a dataset designed to evaluate an LLM’s code generation capabilities. The benchmark consists of 164 hand-crafted programming challenges comparable to simple software interview questions. For more information, [visit the HumanEval GitHub page](https://github.com/openai/human-eval).
 
@@ -14,7 +21,7 @@ The **HumanEval** benchmark is a dataset designed to evaluate an LLM’s code ge
 
 ## Arguments
 
-There are two optional arguments when using the `HumanEval` benchmark:
+There are **TWO** optional arguments when using the `HumanEval` benchmark:
 
 - [Optional] `tasks`: a list of tasks (`HumanEvalTask` enums), specifying which of the **164 programming tasks** to evaluate in the language model. By default, this is set to all tasks. Detailed descriptions of the `HumanEvalTask` enum can be found [here](#humaneval-tasks).
 - [Optional] `n`: the number of code generation samples for each task for model evaluation using the pass@k metric. This is set to **200 by default**. A more detailed description of the `pass@k` metric and `n` parameter can be found [here](#passk-metric).
@@ -23,7 +30,7 @@ There are two optional arguments when using the `HumanEval` benchmark:
 By default, each task will be evaluated 200 times, as specified by `n`, the number of code generation samples. This means your LLM is being invoked **200 times on the same prompt** by default.
 :::
 
-## Example
+## Usage
 
 The code below evaluates a custom `GPT-4` model ([click here to learn how to use **ANY** custom LLM](/docs/benchmarks-introduction#benchmarking-your-llm)) and assesses its performance on HAS_CLOSE_ELEMENTS and SORT_NUMBERS tasks using 100 code generation samples.
 

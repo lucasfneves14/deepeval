@@ -18,6 +18,7 @@ from deepeval.test_run.api import (
     LLMApiTestCase,
     ConversationalApiTestCase,
     TestRunHttpResponse,
+    MetricData,
 )
 from deepeval.test_case import LLMTestCase, ConversationalTestCase, MLLMTestCase
 from deepeval.utils import (
@@ -50,6 +51,9 @@ class MetricScoreType(BaseModel):
 class MetricScores(BaseModel):
     metric: str
     scores: List[float]
+    passes: int
+    fails: int
+    errors: int
 
 
 class MetricsAverageDict:
@@ -100,7 +104,7 @@ class TestRun(BaseModel):
         default_factory=lambda: [], alias="metricsScores"
     )
     identifier: Optional[str] = None
-    hyperparameters: Optional[Dict[Any, Any]] = Field(None)
+    hyperparameters: Optional[Dict[str, Any]] = Field(None)
     test_passed: Optional[int] = Field(None, alias="testPassed")
     test_failed: Optional[int] = Field(None, alias="testFailed")
     run_duration: float = Field(0.0, alias="runDuration")
@@ -189,57 +193,71 @@ class TestRun(BaseModel):
                 del turn.conversational_instance_id
 
         for test_case in self.test_cases:
-            del test_case.conversational_instance_id
+            if hasattr(test_case, "conversational_instance_id"):
+                del test_case.conversational_instance_id
 
     def construct_metrics_scores(self) -> int:
-        metrics_dict: Dict[str, List[float]] = {}
+        # Use a dict to aggregate scores, passes, and fails for each metric.
+        metrics_dict: Dict[str, Dict[str, Any]] = {}
         valid_scores = 0
+
+        def process_metric_data(metric_data: MetricData):
+            nonlocal valid_scores
+            name = metric_data.name
+            score = metric_data.score
+            success = metric_data.success
+            # Initialize dict entry if needed.
+            if name not in metrics_dict:
+                metrics_dict[name] = {
+                    "scores": [],
+                    "passes": 0,
+                    "fails": 0,
+                    "errors": 0,
+                }
+
+            if score is None or success is None:
+                metrics_dict[name]["errors"] += 1
+            else:
+                valid_scores += 1
+
+                # Append the score.
+                metrics_dict[name]["scores"].append(score)
+
+                # Increment passes or fails based on the metric_data.success flag.
+                if success:
+                    metrics_dict[name]["passes"] += 1
+                else:
+                    metrics_dict[name]["fails"] += 1
+
+        # Process non-conversational test cases.
         for test_case in self.test_cases:
             if test_case.metrics_data is None:
                 continue
             for metric_data in test_case.metrics_data:
-                name = metric_data.name
-                score = metric_data.score
-                if score is None:
-                    continue
-                valid_scores += 1
-                if name in metrics_dict:
-                    metrics_dict[name].append(score)
-                else:
-                    metrics_dict[name] = [score]
+                process_metric_data(metric_data)
 
+        # Process conversational test cases.
         for convo_test_case in self.conversational_test_cases:
             if convo_test_case.metrics_data is not None:
                 for metric_data in convo_test_case.metrics_data:
-                    name = metric_data.name
-                    score = metric_data.score
-                    if score is None:
-                        continue
-                    valid_scores += 1
-                    if name in metrics_dict:
-                        metrics_dict[name].append(score)
-                    else:
-                        metrics_dict[name] = [score]
+                    process_metric_data(metric_data)
 
             for turn in convo_test_case.turns:
                 if turn.metrics_data is None:
                     continue
                 for metric_data in turn.metrics_data:
-                    name = metric_data.name
-                    score = metric_data.score
-                    if score is None:
-                        continue
-                    valid_scores += 1
-                    if name in metrics_dict:
-                        metrics_dict[name].append(score)
-                    else:
-                        metrics_dict[name] = [score]
+                    process_metric_data(metric_data)
 
-        # metrics_scores combines both conversational and nonconvo and mllm scores
-        # might need to separate in the future
+        # Create MetricScores objects with the aggregated data.
         self.metrics_scores = [
-            MetricScores(metric=metric, scores=scores)
-            for metric, scores in metrics_dict.items()
+            MetricScores(
+                metric=metric,
+                scores=data["scores"],
+                passes=data["passes"],
+                fails=data["fails"],
+                errors=data["errors"],
+            )
+            for metric, data in metrics_dict.items()
         ]
         return valid_scores
 
@@ -270,7 +288,7 @@ class TestRun(BaseModel):
         except AttributeError:
             # Pydantic version below 2.0
             body = self.dict(by_alias=True, exclude_none=True)
-        json.dump(body, f)
+        json.dump(body, f, cls=TestRunEncoder)
         return self
 
     @classmethod
@@ -284,6 +302,13 @@ class TestRun(BaseModel):
                 raise ValueError(
                     "Unable to send multimodal test cases to Confident AI."
                 )
+
+
+class TestRunEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Enum):
+            return obj.value
+        return super().default(obj)
 
 
 class TestRunManager:
@@ -425,6 +450,10 @@ class TestRunManager:
             pass_count = 0
             fail_count = 0
             test_case_name = test_case.name
+
+            # TODO: recursively iterate through it to calculate pass and fail count
+            if test_case.trace:
+                pass
 
             for metric_data in test_case.metrics_data:
                 if metric_data.success:
@@ -715,8 +744,7 @@ class TestRunManager:
 
             console.print(
                 "[rgb(5,245,141)]✓[/rgb(5,245,141)] Tests finished 🎉! View results on "
-                f"[link={link}]{link}[/link].",
-                LOGIN_PROMPT,
+                f"[link={link}]{link}[/link]."
             )
 
             if is_in_ci_env() == False:
@@ -725,8 +753,9 @@ class TestRunManager:
             return link
         else:
             console.print(
-                "[rgb(5,245,141)]✓[/rgb(5,245,141)] Tests finished 🎉! Run 'deepeval login' to save and analyze evaluation results on Confident AI. ",
+                "\n[rgb(5,245,141)]✓[/rgb(5,245,141)] Tests finished 🎉! Run [bold]'deepeval login'[/bold] to save and analyze evaluation results on Confident AI.\n",
                 LOGIN_PROMPT,
+                "\n",
             )
 
     def save_test_run_locally(self):

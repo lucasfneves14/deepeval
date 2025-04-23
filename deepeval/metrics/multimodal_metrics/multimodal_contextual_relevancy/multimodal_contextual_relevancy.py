@@ -18,14 +18,15 @@ from deepeval.models import DeepEvalBaseMLLM
 from deepeval.metrics.multimodal_metrics.multimodal_contextual_relevancy.schema import *
 from deepeval.metrics.indicator import metric_progress_indicator
 
-required_params: List[MLLMTestCaseParams] = [
-    MLLMTestCaseParams.INPUT,
-    MLLMTestCaseParams.ACTUAL_OUTPUT,
-    MLLMTestCaseParams.CONTEXT,
-]
-
 
 class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
+
+    _required_params: List[MLLMTestCaseParams] = [
+        MLLMTestCaseParams.INPUT,
+        MLLMTestCaseParams.ACTUAL_OUTPUT,
+        MLLMTestCaseParams.CONTEXT,
+    ]
+
     def __init__(
         self,
         threshold: float = 0.5,
@@ -49,7 +50,7 @@ class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
         _show_indicator: bool = True,
     ) -> float:
         check_mllm_test_case_params(
-            test_case, required_params, None, None, self
+            test_case, self._required_params, None, None, self
         )
 
         self.evaluation_cost = 0 if self.using_native_model else None
@@ -83,7 +84,7 @@ class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
         _show_indicator: bool = True,
     ) -> float:
         check_mllm_test_case_params(
-            test_case, required_params, None, None, self
+            test_case, self._required_params, None, None, self
         )
 
         self.evaluation_cost = 0 if self.using_native_model else None
@@ -133,10 +134,9 @@ class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
             score=format(self.score, ".2f"),
         )
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Reason)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
+            return res.reason
         else:
             try:
                 res: Reason = await self.model.a_generate(prompt, schema=Reason)
@@ -166,10 +166,9 @@ class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
             score=format(self.score, ".2f"),
         )
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Reason)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
+            return res.reason
         else:
             try:
                 res: Reason = self.model.generate(prompt, schema=Reason)
@@ -203,10 +202,11 @@ class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
             input=input, context=context
         )
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(
+                prompt, schema=ContextualRelevancyVerdicts
+            )
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return ContextualRelevancyVerdicts(**data)
+            return res
         else:
             try:
                 res = await self.model.a_generate(
@@ -227,10 +227,11 @@ class MultimodalContextualRelevancyMetric(BaseMultimodalMetric):
             input=input, context=context
         )
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(
+                prompt, schema=ContextualRelevancyVerdicts
+            )
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return ContextualRelevancyVerdicts(**data)
+            return res
         else:
             try:
                 res = self.model.generate(

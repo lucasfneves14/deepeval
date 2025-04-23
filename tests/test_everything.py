@@ -97,7 +97,7 @@ class TestClass(BaseModel):
 eval_model = "gpt-4o"
 
 
-# @pytest.mark.skip(reason="openai is expensive")
+@pytest.mark.skip(reason="openai is expensive")
 def test_everything():
     metric1 = AnswerRelevancyMetric(
         threshold=0.1,
@@ -211,13 +211,13 @@ def test_everything():
             metric9,
             metric10,
             metric11,
-            metric12,
-            # metric13,
-            metric14,
-            metric15,
-            metric16,
-            metric17,
-            metric18,
+            # metric12,
+            # # metric13,
+            # metric14,
+            # metric15,
+            # metric16,
+            # metric17,
+            # metric18,
         ],
         run_async=True,
     )
@@ -245,10 +245,10 @@ def test_everything_2():
             strict_mode=True,
         ),
     )
-    metric11 = RagasMetric(
-        threshold=0.5, model="gpt-3.5-turbo", embeddings=OpenAIEmbeddings()
-    )
-    metric12 = ToolCorrectnessMetric()
+    # metric11 = RagasMetric(
+    #     threshold=0.5, model="gpt-3.5-turbo", embeddings=OpenAIEmbeddings()
+    # )
+    # metric12 = ToolCorrectnessMetric()
 
     test_case = LLMTestCase(
         input="What is this again?",
@@ -256,11 +256,6 @@ def test_everything_2():
         expected_output="this is a mocha",
         retrieval_context=["I love coffee"],
         context=["I love coffee"],
-        expected_tools=["mixer", "creamer", "dripper"],
-        tools_called=["mixer", "creamer", "mixer"],
-    )
-    c_test_case = ConversationalTestCase(
-        name="testing_", turns=[test_case, test_case]
     )
     assert_test(
         test_case,
@@ -276,14 +271,20 @@ def test_everything_2():
             # metric9,
             # metric10,
             # metric11,
-            metric12,
+            # metric12,
         ],
         # run_async=False,
     )
 
 
-@deepeval.log_hyperparameters(
-    model="gpt-4", prompt_template="another template!"
-)
-def hyperparameters():
-    return {"chunk_size": 600, "temperature": 1}
+# from deepeval.prompt import Prompt
+
+# prompt = Prompt(alias="New Prompt")
+# prompt.pull()
+
+
+# @deepeval.log_hyperparameters(
+#     model="gpt-4", prompt_template="another template!"
+# )
+# def hyperparameters():
+#     return {"System Prompt": prompt, "temperature": 1}

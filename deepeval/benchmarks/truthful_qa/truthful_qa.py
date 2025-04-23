@@ -1,8 +1,6 @@
 from typing import List, Dict, Optional
-from datasets import load_dataset, Dataset
 from tqdm import tqdm
 import pandas as pd
-from typing import Union
 
 from deepeval.dataset import Golden
 from deepeval.benchmarks.base_benchmark import DeepEvalBaseBenchmark
@@ -11,7 +9,6 @@ from deepeval.benchmarks.truthful_qa.task import TruthfulQATask
 from deepeval.benchmarks.truthful_qa.mode import TruthfulQAMode
 from deepeval.benchmarks.truthful_qa.template import TruthfulQATemplate
 from deepeval.benchmarks.utils import should_use_batch
-from deepeval.scorer import Scorer
 from deepeval.benchmarks.schema import NumberSchema, ListOfNumbersSchema
 from deepeval.telemetry import capture_benchmark_run
 
@@ -33,6 +30,9 @@ class TruthfulQA(DeepEvalBaseBenchmark):
         ] = None,
         **kwargs,
     ):
+        from deepeval.scorer import Scorer
+        from datasets import Dataset
+
         super().__init__(**kwargs)
         self.tasks: List[TruthfulQATask] = (
             list(TruthfulQATask) if tasks is None else tasks
@@ -266,6 +266,8 @@ class TruthfulQA(DeepEvalBaseBenchmark):
     def load_benchmark_dataset(
         self, task: TruthfulQATask, mode: TruthfulQAMode
     ) -> List[Golden]:
+        from datasets import load_dataset, Dataset
+
         # Load full dataset
         if self.mc_dataset is None:
             gen_dataset = load_dataset("truthful_qa", "generation")[

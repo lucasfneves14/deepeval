@@ -24,13 +24,13 @@ from deepeval.metrics.knowledge_retention.schema import (
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
 
-required_params: List[LLMTestCaseParams] = [
-    LLMTestCaseParams.INPUT,
-    LLMTestCaseParams.ACTUAL_OUTPUT,
-]
-
 
 class KnowledgeRetentionMetric(BaseConversationalMetric):
+    _required_params: List[LLMTestCaseParams] = [
+        LLMTestCaseParams.INPUT,
+        LLMTestCaseParams.ACTUAL_OUTPUT,
+    ]
+
     def __init__(
         self,
         threshold: float = 0.5,
@@ -51,7 +51,9 @@ class KnowledgeRetentionMetric(BaseConversationalMetric):
     def measure(
         self, test_case: ConversationalTestCase, _show_indicator: bool = True
     ):
-        check_conversational_test_case_params(test_case, required_params, self)
+        check_conversational_test_case_params(
+            test_case, self._required_params, self
+        )
 
         self.evaluation_cost = 0 if self.using_native_model else None
         with metric_progress_indicator(self, _show_indicator=_show_indicator):
@@ -78,14 +80,16 @@ class KnowledgeRetentionMetric(BaseConversationalMetric):
                         f"Score: {self.score}\nReason: {self.reason}",
                     ],
                 )
-                return self.score
+            return self.score
 
     async def a_measure(
         self,
         test_case: ConversationalTestCase,
         _show_indicator: bool = True,
     ) -> float:
-        check_conversational_test_case_params(test_case, required_params, self)
+        check_conversational_test_case_params(
+            test_case, self._required_params, self
+        )
 
         self.evaluation_cost = 0 if self.using_native_model else None
         with metric_progress_indicator(

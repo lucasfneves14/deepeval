@@ -4,13 +4,19 @@ title: Task Completion
 sidebar_label: Task Completion
 ---
 
-import Equation from "@site/src/components/equation";
+<head>
+  <link
+    rel="canonical"
+    href="https://deepeval.com/docs/metrics-task-completion"
+  />
+</head>
 
-The task completion metric evaluates how effectively an LLM agent accomplishes a user-defined task, based on the agent's `actual_ouptut` and tool usage. `deepeval`'s task completion metric is a self-explaining LLM-Eval, meaning it outputs a reason for its metric score.
+import Equation from "@site/src/components/Equation";
+import MetricTagsDisplayer from "@site/src/components/MetricTagsDisplayer";
 
-:::info
-`TaskCompletion` is an **agentic metric**. It's useful for evaluating how well your LLM agent utilizes tools and reasoning to accomplish a user request.
-:::
+<MetricTagsDisplayer agent={true} referenceless={true} />
+
+The task completion metric uses LLM-as-a-judge to evaluate how effectively an **LLM agent accomplishes a task** as outlined in the `input`, based on `tools_called` and the `actual_output` of the agent. `deepeval`'s task completion metric is a self-explaining LLM-Eval, meaning it outputs a reason for its metric score.
 
 ## Required Arguments
 
@@ -20,16 +26,22 @@ To use the `TaskCompletion`, you'll have to provide the following arguments when
 - `actual_output`
 - `tools_called`
 
-## Example
+The `input` and `actual_output` are required to create an `LLMTestCase` (and hence required by all metrics) even though they might not be used for metric calculation. Read the [How Is It Calculated](#how-is-it-calculated) section below to learn more.
+
+:::tip
+To learn why each test case parameter is necessary in calculating the `TaskCompletion` score, see [how is it calculated](/docs/metrics-task-completion#how-is-it-calculated).
+:::
+
+## Usage
 
 ```python
 from deepeval import evaluate
-from deepeval.metrics import TaskCompletionMetric
 from deepeval.test_case import LLMTestCase
+from deepeval.metrics import TaskCompletionMetric
 
 metric = TaskCompletionMetric(
     threshold=0.7,
-    model="gpt-4",
+    model="gpt-4o",
     include_reason=True
 )
 test_case = LLMTestCase(
@@ -59,15 +71,14 @@ test_case = LLMTestCase(
     ],
 )
 
-metric.measure(test_case)
-print(metric.score)
-print(metric.reason)
+# To run metric as a standalone
+# metric.measure(test_case)
+# print(metric.score, metric.reason)
 
-# or evaluate test cases in bulk
-evaluate([test_case], [metric])
+evaluate(test_cases=[test_case], metrics=[metric])
 ```
 
-There are six optional parameters when creating an `TaskCompletionMetric`:
+There are **SIX** optional parameters when creating an `TaskCompletionMetric`:
 
 - [Optional] `threshold`: a float representing the minimum passing threshold, defaulted to 0.5.
 - [Optional] `model`: a string specifying which of OpenAI's GPT models to use, **OR** [any custom LLM model](/docs/metrics-introduction#using-a-custom-llm) of type `DeepEvalBaseLLM`. Defaulted to 'gpt-4o'.
@@ -76,10 +87,56 @@ There are six optional parameters when creating an `TaskCompletionMetric`:
 - [Optional] `async_mode`: a boolean which when set to `True`, enables [concurrent execution within the `measure()` method.](/docs/metrics-introduction#measuring-a-metric-in-async) Defaulted to `True`.
 - [Optional] `verbose_mode`: a boolean which when set to `True`, prints the intermediate steps used to calculate said metric to the console, as outlined in the [How Is It Calculated](#how-is-it-calculated) section. Defaulted to `False`.
 
+### As a standalone
+
+You can also run the `TaskCompletionMetric` on a single test case as a standalone, one-off execution.
+
+```python
+...
+
+metric.measure(test_case)
+print(metric.score, metric.reason)
+```
+
+:::caution
+This is great for debugging or if you wish to build your own evaluation pipeline, but you will **NOT** get the benefits (testing reports, Confident AI platform) and all the optimizations (speed, caching, computation) the `evaluate()` function or `deepeval test run` offers.
+:::
+
 ## How Is It Calculated?
 
 The `TaskCompletionMetric` score is calculated according to the following equation:
 
-<Equation formula="\text{Task Completion Score} = \text{similarity}(\text{Desired Outcome}, \text{Actual Outcome})" />
+<Equation formula="\text{Task Completion Score} = \text{AlignmentScore}(\text{Task}, \text{Outcome})" />
 
-The `TaskCompletionMetric` first extracts the user's goal (desired outcome) from the interaction before using an LLM to evaluate how well the actual outcome aligns with the desired outcome.
+- **Task** and **Outcome** are extracted from the `input`, `actual_output`, and `tools_called` using an LLM.
+- The **Alignment Score** measures how well the outcome aligns with the task (or user-defined task), as judged by an LLM.
+
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <img
+    src="https://deepeval-docs.s3.amazonaws.com/task-completion.png"
+    alt="LangChain"
+    style={{
+      margin: "40px",
+      height: "auto",
+      maxHeight: "800px",
+    }}
+  />
+</div>
+
+:::note  
+While the task is primarily derived from the `input` and the outcome from the `actual_output`, these parameters alone are insufficient to calculate the **Task Completion Score**. See below for details.  
+:::
+
+#### What Is Task?
+
+The **task** represents the user’s goal or the action they want the agent to perform. The `input` alone often lacks the specificity needed to determine the full intent. For example, the input "Can you help me recover?" is unclear—it could mean recovering an account, a file, or something else. However, if the agent calls a recovery API, this action provides the necessary context to identify the task as assisting with account recovery, which is why the task is extracted from the entire `LLMTestCase`.
+
+#### What Is Outcome?
+
+The **outcome** refers to the agent’s actions in response to the user’s request. Like the task, the outcome cannot be derived from the `actual_output` alone. For example, if a restaurant reservation agent replies with "Booked for tonight," it’s impossible to confirm if the user’s goal was met without additional information such as the restaurant name, time, and tools used. These test case details (especiallly `tools_called`) are crucial to verify that the outcome aligns with the user’s intended task.

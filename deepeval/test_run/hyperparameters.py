@@ -1,9 +1,12 @@
-from typing import Union
+from typing import Union, Dict
 
-from .test_run import global_test_run_manager
+from deepeval.test_run import global_test_run_manager
+from deepeval.prompt import Prompt, PromptApi
 
 
-def process_hyperparameters(hyperparameters) -> Union[dict, None]:
+def process_hyperparameters(
+    hyperparameters,
+) -> Union[Dict[str, Union[str, int, float, PromptApi]], None]:
     if hyperparameters is None:
         return None
 
@@ -19,12 +22,23 @@ def process_hyperparameters(hyperparameters) -> Union[dict, None]:
         if value is None:
             continue
 
-        if not isinstance(value, (str, int, float)):
+        if not isinstance(value, (str, int, float, Prompt)):
             raise TypeError(
-                f"Hyperparameter value for key '{key}' must be a string, integer, or float"
+                f"Hyperparameter value for key '{key}' must be a string, integer, float, or Prompt"
             )
 
-        processed_hyperparameters[key] = str(value)
+        if isinstance(value, Prompt):
+            if value._prompt_version_id is not None and value._type is not None:
+                processed_hyperparameters[key] = PromptApi(
+                    id=value._prompt_version_id,
+                    type=value._type,
+                )
+            else:
+                raise ValueError(
+                    f"Cannot log Prompt where template was not pulled from Confident AI. Pleaes import your prompt on Confident AI to continue."
+                )
+        else:
+            processed_hyperparameters[key] = str(value)
 
     return processed_hyperparameters
 

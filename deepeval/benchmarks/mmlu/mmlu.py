@@ -1,5 +1,4 @@
 from typing import List, Optional, Dict
-from datasets import load_dataset
 import pandas as pd
 from tqdm import tqdm
 
@@ -9,7 +8,6 @@ from deepeval.models import DeepEvalBaseLLM
 from deepeval.benchmarks.mmlu.task import MMLUTask
 from deepeval.benchmarks.mmlu.template import MMLUTemplate
 from deepeval.benchmarks.utils import should_use_batch
-from deepeval.scorer import Scorer
 from deepeval.benchmarks.schema import MultipleChoiceSchema
 from deepeval.telemetry import capture_benchmark_run
 
@@ -24,6 +22,8 @@ class MMLU(DeepEvalBaseBenchmark):
         confinement_instructions: Optional[str] = None,
         **kwargs,
     ):
+        from deepeval.scorer import Scorer
+
         assert n_shots <= 5, "MMLU only supports n_shots <= 5"
         super().__init__(**kwargs)
         self.tasks: List[MMLUTask] = list(MMLUTask) if tasks is None else tasks
@@ -237,6 +237,7 @@ class MMLU(DeepEvalBaseBenchmark):
         return res
 
     def load_benchmark_dataset(self, task: MMLUTask) -> List[Golden]:
+        from datasets import load_dataset
 
         dataset = load_dataset(
             "lukaemon/mmlu", task.value, trust_remote_code=True

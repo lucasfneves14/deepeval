@@ -12,24 +12,21 @@ from deepeval.metrics.utils import (
     check_mllm_test_case_params,
     initialize_multimodal_model,
 )
-from deepeval.test_case import (
-    LLMTestCase,
-    LLMTestCaseParams,
-    ConversationalTestCase,
-)
+from deepeval.test_case import LLMTestCaseParams
 from deepeval.models import DeepEvalBaseMLLM
 from deepeval.metrics.multimodal_metrics.multimodal_contextual_precision.schema import *
 from deepeval.metrics.indicator import metric_progress_indicator
 
-required_params: List[LLMTestCaseParams] = [
-    LLMTestCaseParams.INPUT,
-    LLMTestCaseParams.ACTUAL_OUTPUT,
-    LLMTestCaseParams.RETRIEVAL_CONTEXT,
-    LLMTestCaseParams.EXPECTED_OUTPUT,
-]
-
 
 class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
+
+    _required_params: List[LLMTestCaseParams] = [
+        LLMTestCaseParams.INPUT,
+        LLMTestCaseParams.ACTUAL_OUTPUT,
+        LLMTestCaseParams.RETRIEVAL_CONTEXT,
+        LLMTestCaseParams.EXPECTED_OUTPUT,
+    ]
+
     def __init__(
         self,
         threshold: float = 0.5,
@@ -53,7 +50,7 @@ class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
         _show_indicator: bool = True,
     ) -> float:
         check_mllm_test_case_params(
-            test_case, required_params, None, None, self
+            test_case, self._required_params, None, None, self
         )
 
         self.evaluation_cost = 0 if self.using_native_model else None
@@ -90,7 +87,7 @@ class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
         _show_indicator: bool = True,
     ) -> float:
         check_mllm_test_case_params(
-            test_case, required_params, None, None, self
+            test_case, self._required_params, None, None, self
         )
 
         self.evaluation_cost = 0 if self.using_native_model else None
@@ -134,10 +131,9 @@ class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
         )
 
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Reason)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
+            return res.reason
         else:
             try:
                 res: Reason = await self.model.a_generate(prompt, schema=Reason)
@@ -162,10 +158,9 @@ class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
         )
 
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Reason)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
+            return res.reason
         else:
             try:
                 res: Reason = self.model.generate(prompt, schema=Reason)
@@ -184,12 +179,9 @@ class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
             retrieval_context=retrieval_context,
         )
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Verdicts)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            verdicts = [
-                ContextualPrecisionVerdict(**item) for item in data["verdicts"]
-            ]
+            verdicts = [item for item in res.verdicts]
             return verdicts
         else:
             try:
@@ -216,12 +208,9 @@ class MultimodalContextualPrecisionMetric(BaseMultimodalMetric):
             retrieval_context=retrieval_context,
         )
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Verdicts)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            verdicts = [
-                ContextualPrecisionVerdict(**item) for item in data["verdicts"]
-            ]
+            verdicts = [item for item in res.verdicts]
             return verdicts
         else:
             try:

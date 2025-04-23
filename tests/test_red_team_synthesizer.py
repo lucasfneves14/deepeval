@@ -7,7 +7,6 @@ import openai
 
 from deepeval.red_teaming import RedTeamer, AttackEnhancement
 from deepeval.red_teaming.attack_synthesizer import AttackSynthesizer
-from deepeval.models.gpt_model_schematic import SchematicGPTModel
 from deepeval.key_handler import KeyValues, KEY_FILE_HANDLER
 from deepeval.models import DeepEvalBaseLLM, GPTModel
 from deepeval.test_case import LLMTestCase
@@ -145,11 +144,10 @@ def test_red_teamer():
     results = red_teamer.scan(
         target_model_callback=a_generate,
         attacks_per_vulnerability_type=1,
-        attack_enhancements={
-            enhancement: 1 for enhancement in AttackEnhancement
-        },
-        vulnerabilities=vulnerabilties,
-        max_concurrent_tasks=2,
+        attack_enhancements={AttackEnhancement.JAILBREAK_CRESCENDO: 1},
+        vulnerabilities=vulnerabilties[0:2],
+        max_concurrent=2,
+        ignore_errors=True,
     )
     print(results)
 

@@ -17,14 +17,15 @@ from deepeval.models import DeepEvalBaseLLM
 from deepeval.metrics.multimodal_metrics.multimodal_faithfulness.schema import *
 from deepeval.metrics.indicator import metric_progress_indicator
 
-required_params: List[MLLMTestCaseParams] = [
-    MLLMTestCaseParams.INPUT,
-    MLLMTestCaseParams.ACTUAL_OUTPUT,
-    MLLMTestCaseParams.RETRIEVAL_CONTEXT,
-]
-
 
 class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
+
+    _required_params: List[MLLMTestCaseParams] = [
+        MLLMTestCaseParams.INPUT,
+        MLLMTestCaseParams.ACTUAL_OUTPUT,
+        MLLMTestCaseParams.RETRIEVAL_CONTEXT,
+    ]
+
     def __init__(
         self,
         threshold: float = 0.5,
@@ -53,7 +54,7 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
         _show_indicator: bool = True,
     ) -> float:
         check_mllm_test_case_params(
-            test_case, required_params, None, None, self
+            test_case, self._required_params, None, None, self
         )
 
         self.evaluation_cost = 0 if self.using_native_model else None
@@ -88,7 +89,7 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
         _show_indicator: bool = True,
     ) -> float:
         check_mllm_test_case_params(
-            test_case, required_params, None, None, self
+            test_case, self._required_params, None, None, self
         )
 
         self.evaluation_cost = 0 if self.using_native_model else None
@@ -130,10 +131,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
         )
 
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Reason)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
+            return res.reason
         else:
             try:
                 res: Reason = await self.model.a_generate(prompt, schema=Reason)
@@ -158,10 +158,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
         )
 
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Reason)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
+            return res.reason
         else:
             try:
                 res: Reason = self.model.generate(prompt, schema=Reason)
@@ -180,12 +179,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
             claims=self.claims, retrieval_context="\n\n".join(self.truths)
         )
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Verdicts)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            verdicts = [
-                FaithfulnessVerdict(**item) for item in data["verdicts"]
-            ]
+            verdicts = [item for item in res.verdicts]
             return verdicts
         else:
             try:
@@ -211,12 +207,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
             claims=self.claims, retrieval_context="\n\n".join(self.truths)
         )
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Verdicts)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            verdicts = [
-                FaithfulnessVerdict(**item) for item in data["verdicts"]
-            ]
+            verdicts = [item for item in res.verdicts]
             return verdicts
         else:
             try:
@@ -239,10 +232,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
             extraction_limit=self.truths_extraction_limit,
         )
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Truths)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["truths"]
+            return res.truths
         else:
             try:
                 res: Truths = await self.model.a_generate(prompt, schema=Truths)
@@ -260,10 +252,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
             extraction_limit=self.truths_extraction_limit,
         )
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Truths)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["truths"]
+            return res.truths
         else:
             try:
                 res: Truths = self.model.generate(prompt, schema=Truths)
@@ -280,10 +271,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
             excerpt=actual_output
         )
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt)
+            res, cost = await self.model.a_generate(prompt, schema=Claims)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["claims"]
+            return res.claims
         else:
             try:
                 res: Claims = await self.model.a_generate(prompt, schema=Claims)
@@ -300,10 +290,9 @@ class MultimodalFaithfulnessMetric(BaseMultimodalMetric):
             excerpt=actual_output
         )
         if self.using_native_model:
-            res, cost = self.model.generate(prompt)
+            res, cost = self.model.generate(prompt, schema=Claims)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["claims"]
+            return res.claims
         else:
             try:
                 res: Claims = self.model.generate(prompt, schema=Claims)

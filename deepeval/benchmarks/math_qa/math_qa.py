@@ -1,4 +1,3 @@
-from datasets import load_dataset
 from typing import List, Optional, Dict
 from tqdm import tqdm
 import pandas as pd
@@ -9,7 +8,6 @@ from deepeval.models import DeepEvalBaseLLM
 from deepeval.benchmarks.math_qa.task import MathQATask
 from deepeval.benchmarks.math_qa.template import MathQATemplate
 from deepeval.benchmarks.utils import should_use_batch
-from deepeval.scorer import Scorer
 from deepeval.benchmarks.schema import MultipleChoiceSchemaLower
 from deepeval.telemetry import capture_benchmark_run
 
@@ -24,6 +22,8 @@ class MathQA(DeepEvalBaseBenchmark):
         confinement_instructions: Optional[str] = None,
         **kwargs,
     ):
+        from deepeval.scorer import Scorer
+
         assert n_shots <= 5, "MathQA only supports n_shots <= 5"
         super().__init__(**kwargs)
         self.tasks: List[MathQATask] = (
@@ -224,6 +224,8 @@ class MathQA(DeepEvalBaseBenchmark):
         return res
 
     def load_benchmark_dataset(self, task: MathQATask) -> List[Golden]:
+        from datasets import load_dataset
+
         if self.dataset:
             dataset = self.dataset
         else:

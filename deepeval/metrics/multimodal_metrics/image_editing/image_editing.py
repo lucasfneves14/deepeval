@@ -19,13 +19,14 @@ from deepeval.models import DeepEvalBaseMLLM
 from deepeval.metrics.multimodal_metrics.image_editing.schema import ReasonScore
 from deepeval.metrics.indicator import metric_progress_indicator
 
-required_params: List[MLLMTestCaseParams] = [
-    MLLMTestCaseParams.INPUT,
-    MLLMTestCaseParams.ACTUAL_OUTPUT,
-]
-
 
 class ImageEditingMetric(BaseMultimodalMetric):
+
+    _required_params: List[MLLMTestCaseParams] = [
+        MLLMTestCaseParams.INPUT,
+        MLLMTestCaseParams.ACTUAL_OUTPUT,
+    ]
+
     def __init__(
         self,
         model: Optional[Union[str, DeepEvalBaseMLLM]] = None,
@@ -44,7 +45,9 @@ class ImageEditingMetric(BaseMultimodalMetric):
     def measure(
         self, test_case: MLLMTestCase, _show_indicator: bool = True
     ) -> float:
-        check_mllm_test_case_params(test_case, required_params, 1, 1, self)
+        check_mllm_test_case_params(
+            test_case, self._required_params, 1, 1, self
+        )
 
         self.evaluation_cost = 0 if self.using_native_model else None
         with metric_progress_indicator(self, _show_indicator=_show_indicator):
@@ -96,7 +99,9 @@ class ImageEditingMetric(BaseMultimodalMetric):
         test_case: MLLMTestCase,
         _show_indicator: bool = True,
     ) -> float:
-        check_mllm_test_case_params(test_case, required_params, 1, 1, self)
+        check_mllm_test_case_params(
+            test_case, self._required_params, 1, 1, self
+        )
 
         self.evaluation_cost = 0 if self.using_native_model else None
         with metric_progress_indicator(
@@ -167,10 +172,11 @@ class ImageEditingMetric(BaseMultimodalMetric):
             )
         ]
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt + images)
+            res, cost = await self.model.a_generate(
+                prompt + images, schema=ReasonScore
+            )
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["score"], data["reasoning"]
+            return res.score, res.reasoning
         else:
             try:
                 res: ReasonScore = await self.model.a_generate(
@@ -198,10 +204,9 @@ class ImageEditingMetric(BaseMultimodalMetric):
             )
         ]
         if self.using_native_model:
-            res, cost = self.model.generate(prompt + images)
+            res, cost = self.model.generate(prompt + images, schema=ReasonScore)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["score"], data["reasoning"]
+            return res.score, res.reasoning
         else:
             try:
                 res: ReasonScore = self.model.generate(
@@ -221,10 +226,11 @@ class ImageEditingMetric(BaseMultimodalMetric):
             ImageEditingTemplate.generate_perceptual_quality_evaluation_results()
         ]
         if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt + images)
+            res, cost = await self.model.a_generate(
+                prompt + images, schema=ReasonScore
+            )
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["score"], data["reasoning"]
+            return res.score, res.reasoning
         else:
             try:
                 res: ReasonScore = await self.model.a_generate(
@@ -244,10 +250,9 @@ class ImageEditingMetric(BaseMultimodalMetric):
             ImageEditingTemplate.generate_perceptual_quality_evaluation_results()
         ]
         if self.using_native_model:
-            res, cost = self.model.generate(prompt + images)
+            res, cost = self.model.generate(prompt + images, schema=ReasonScore)
             self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["score"], data["reasoning"]
+            return res.score, res.reasoning
         else:
             try:
                 res: ReasonScore = self.model.generate(

@@ -20,10 +20,9 @@ module.exports = {
       {
         id: "tutorials",
         path: "tutorials",
-        routeBasePath: "tutorials", 
-        sidebarPath: require.resolve("./sidebarTutorials.js"), 
-        editUrl:
-          "https://github.com/confident-ai/deepeval/edit/main/docs/",
+        routeBasePath: "tutorials",
+        sidebarPath: require.resolve("./sidebarTutorials.js"),
+        editUrl: "https://github.com/confident-ai/deepeval/edit/main/docs/",
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
       },
@@ -31,25 +30,23 @@ module.exports = {
     [
       "@docusaurus/plugin-content-docs",
       {
-        id: "confident-ai", 
-        path: "confident-ai",
-        routeBasePath: "confident-ai",
-        sidebarPath: require.resolve("./sidebarConfidentAI.js"), 
-        editUrl:
-          "https://github.com/confident-ai/deepeval/edit/main/docs/",
-        showLastUpdateAuthor: true,
-        showLastUpdateTime: true,
-      },
-    ],
-    [
-      "@docusaurus/plugin-content-docs",
-      {
-        id: "guides", 
+        id: "guides",
         path: "guides",
         routeBasePath: "guides",
-        sidebarPath: require.resolve("./sidebarGuides.js"), 
-        editUrl:
-          "https://github.com/confident-ai/deepeval/edit/main/docs/",
+        sidebarPath: require.resolve("./sidebarGuides.js"),
+        editUrl: "https://github.com/confident-ai/deepeval/edit/main/docs/",
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "integrations",
+        path: "integrations",
+        routeBasePath: "integrations",
+        sidebarPath: require.resolve("./sidebarIntegrations.js"),
+        editUrl: "https://github.com/confident-ai/deepeval/edit/main/docs/",
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
       },
@@ -58,10 +55,10 @@ module.exports = {
 
   title: "DeepEval - The Open-Source LLM Evaluation Framework",
   tagline: "Evaluation Framework for LLMs",
-  favicon: "img/fav.ico",
+  favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: "https://docs.confident-ai.com",
+  url: "https://deepeval.com",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -81,10 +78,14 @@ module.exports = {
     [
       "@docusaurus/preset-classic",
       {
+        blog: {
+          blogTitle: 'DeepEval Blog',
+          blogDescription: 'The official LLM evaluation blog',
+          blogSidebarCount: 'ALL',
+        },
         docs: {
           path: "docs",
-          editUrl:
-            "https://github.com/confident-ai/deepeval/edit/main/docs/",
+          editUrl: "https://github.com/confident-ai/deepeval/edit/main/docs/",
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           sidebarPath: require.resolve("./sidebars.js"),
@@ -101,11 +102,23 @@ module.exports = {
       },
     ],
   ],
+  themes: ["@docusaurus/theme-mermaid"],
+  markdown: {
+    mermaid: true,
+  },
   scripts: [
     {
       src: "https://plausible.io/js/script.tagged-events.js",
       defer: true,
-      "data-domain": "confident-ai.com",
+      "data-domain": "deepeval.com",
+    },
+    {
+      src: "https://unpkg.com/lucide@latest",
+      async: true,
+    },
+    {
+      src: "/js/lucide-icons.js",
+      async: true,
     },
   ],
   stylesheets: [
@@ -135,35 +148,37 @@ module.exports = {
             to: "docs/getting-started",
             position: "left",
             label: "Docs",
-            activeBasePath: 'docs',
-          },
-          {
-            to: "confident-ai/confident-ai-introduction",
-            position: "left",
-            label: "Confident AI",
-            activeBasePath: 'confident-ai',
-          },
-          {
-            to: "tutorials/tutorial-introduction",
-            position: "left",
-            label: "Tutorials",
-            activeBasePath: 'tutorials',
+            activeBasePath: "docs",
           },
           {
             to: "guides/guides-rag-evaluation",
             position: "left",
             label: "Guides",
-            activeBasePath: 'guides',
+            activeBasePath: "guides",
           },
           {
-            href: "https://confident-ai.com/blog",
+            to: "tutorials/tutorial-introduction",
             position: "left",
-            label: "Blogs",
+            label: "Tutorials",
+            activeBasePath: "tutorials",
+          },
+          {
+            to: "integrations/models/openai",
+            position: "left",
+            label: "Integrations",
+            activeBasePath: "integrations",
+          },
+          {to: 'blog', label: 'Blog', position: 'left'},
+          {
+            href: "https://documentation.confident-ai.com",
+            position: "left",
+            label: "Confident AI Docs",
           },
           {
             href: "https://confident-ai.com",
             className: "header-confident-link",
             position: "right",
+            label: "Try DeepEval Cloud",
           },
           {
             href: "https://discord.gg/a3K9c8GRGt",
@@ -171,7 +186,7 @@ module.exports = {
             position: "right",
           },
           {
-            href: "https://github.com/mr-gpt/deepeval",
+            href: "https://github.com/confident-ai/deepeval",
             position: "right",
             className: "header-github-link",
           },
@@ -205,7 +220,10 @@ module.exports = {
                 label: "Introduction",
                 to: "/docs/getting-started",
               },
-              {label: "Confident AI", to: "/confident-ai/confident-ai-introduction"},
+              {
+                label: "Confident AI",
+                to: "https://documentation.confident-ai.com",
+              },
               {
                 label: "Tutorials",
                 to: "/tutorials/tutorial-introduction",
@@ -217,7 +235,28 @@ module.exports = {
             ],
           },
           {
-            title: "Community",
+            title: "Articles You Must Read",
+            items: [
+              {
+                label: "LLM evaluation metrics",
+                to: "https://www.confident-ai.com/blog/llm-evaluation-metrics-everything-you-need-for-llm-evaluation",
+              },
+              {
+                label: "LLM-as-a-judge",
+                to: "https://www.confident-ai.com/blog/why-llm-as-a-judge-is-the-best-llm-evaluation-method",
+              },
+              {
+                label: "LLM testing",
+                to: "https://www.confident-ai.com/blog/llm-testing-in-2024-top-methods-and-strategies",
+              },
+              {
+                label: "LLM chatbot evaluation",
+                to: "https://www.confident-ai.com/blog/llm-chatbot-evaluation-explained-top-chatbot-evaluation-metrics-and-testing-techniques",
+              },
+            ],
+          },
+          {
+            title: "Evaluation Community",
             items: [
               {
                 label: "GitHub",
@@ -237,6 +276,8 @@ module.exports = {
         copyright: `Copyright © ${new Date().getFullYear()} Confident AI Inc. Built with ❤️ and confidence.`,
       },
       prism: {
+        theme: require("prism-react-renderer/themes/nightOwl"),
+        // theme: require("prism-react-renderer/themes/palenight"),
         additionalLanguages: ["python"],
         magicComments: [
           {

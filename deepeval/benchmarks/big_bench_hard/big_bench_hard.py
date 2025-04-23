@@ -1,5 +1,4 @@
 from typing import List, Optional, Dict
-from datasets import load_dataset
 import pandas as pd
 from tqdm import tqdm
 
@@ -9,7 +8,6 @@ from deepeval.models import DeepEvalBaseLLM
 from deepeval.benchmarks.big_bench_hard.task import BigBenchHardTask
 from deepeval.benchmarks.big_bench_hard.template import BigBenchHardTemplate
 from deepeval.benchmarks.utils import should_use_batch
-from deepeval.scorer import Scorer
 from deepeval.benchmarks.schema import *
 from deepeval.telemetry import capture_benchmark_run
 
@@ -57,6 +55,8 @@ class BigBenchHard(DeepEvalBaseBenchmark):
         ] = None,
         **kwargs,
     ):
+        from deepeval.scorer import Scorer
+
         assert n_shots <= 3, "BBH only supports n_shots <= 3"
         super().__init__(**kwargs)
         self.tasks: List[BigBenchHardTask] = (
@@ -199,7 +199,7 @@ class BigBenchHard(DeepEvalBaseBenchmark):
         try:
             res = model.generate(prompt=prompt, schema=pydantic_model)
             prediction = str(res.answer)
-        except TypeError:
+        except (AttributeError, TypeError):
             prompt += self.confinement_instructions_dict[task]
             prediction = model.generate(prompt)
 
@@ -265,6 +265,8 @@ class BigBenchHard(DeepEvalBaseBenchmark):
         return res
 
     def load_benchmark_dataset(self, task: BigBenchHardTask) -> List[Golden]:
+        from datasets import load_dataset
+
         dataset_mapping = {
             task: f"{task.value}_dataset" for task in BigBenchHardTask
         }
